@@ -1,6 +1,8 @@
-use std::option::NoneError;
-use std::error::Error as StdError;
-use std::fmt::{self, Display};
+use std:: {
+    option::NoneError,
+    error::Error as StdError,
+    fmt::{self, Display}
+};
 
 #[derive(Debug)]
 pub enum Error {

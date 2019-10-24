@@ -38,23 +38,43 @@ pub struct GenerationalIndex {
 }
 
 impl GenerationalIndex {
+    /// Returns the index of the generational index.
     pub fn index(&self) -> usize {
         self.index
     }
 }
 
+/// The raw entry which contains all information relating to the index in question.
+/// Contains the index's generation, as well as aboolean specifying whether the index is in
+/// use. When an object is destroyed, the live boolean will be used to specify whether an index is
+/// valid for use when iterating over a component list.
 struct AllocatorEntry {
     live: bool,
     generation: u32
 }
 
+/// The allocator data structure. The allocator will be used to generate indices for entities.
+/// An allocator ensures that a unique instance of every index is generated so as to prevent an overlap
+/// in entity possession. The allocator currently possesses two main vectors: one for entires and one
+/// for free indices.
+///
+/// Entries: Holds a vector of AllocatorEntries which contain all index information.
+/// Free: Holds all indices which have been previously released and freed for use.
+///
+/// The allocator also has four main functions: new(), allocate(), deallocate(), and is_live().
+///
+/// New: Creates a new instance of the allocator.
+/// Allocate: generates a generational index. First checks the free vector for available indices.
+/// If the free vector is empty, a new entry is created using the last index is used for the index
+/// value.
+/// Deallocate: pushes the index into the free list and sets the live flag to false.
+/// Is_live: Checks whether a given index is live or not.
 pub struct IndexAllocator {
     entries: Vec<AllocatorEntry>,
     free: Vec<usize>,
 }
 
 impl IndexAllocator {
-
     pub fn new() -> IndexAllocator {
 
         let entries : Vec<AllocatorEntry> = Vec::with_capacity(1024);
