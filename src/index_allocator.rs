@@ -33,8 +33,14 @@ use self::super::errors::Error;
 /// list, if its generation does not match, then it is not used.
 #[derive(Clone)]
 pub struct GenerationalIndex {
-    pub index: usize,
+    index: usize,
     pub generation: u32,
+}
+
+impl GenerationalIndex {
+    pub fn index(&self) -> usize {
+        self.index
+    }
 }
 
 struct AllocatorEntry {
@@ -71,5 +77,15 @@ impl IndexAllocator {
             self.entries.push(AllocatorEntry { live: true, generation: 0});
             Ok(GenerationalIndex {index: self.entries.len() - 1, generation: 0})
         }
+    }
+
+    pub fn deallocate(&mut self, index : &GenerationalIndex) {
+
+        self.free.push(index.index());
+        self.entries[index.index()].live = false;
+    }
+
+    pub fn is_live(&self, index: GenerationalIndex) -> bool {
+        self.entries[index.index()].live
     }
 }
