@@ -75,36 +75,54 @@ pub struct IndexAllocator {
 }
 
 impl IndexAllocator {
-    pub fn new() -> IndexAllocator {
 
+    /// Creates a new instance of the index allocator. by default the vector is created with a max
+    /// space of 1024 entities. This should be changed later when more requirements are made.
+    /// TODO: Change the size of the entity storage as project grows.
+    pub fn new() -> IndexAllocator {
         let entries : Vec<AllocatorEntry> = Vec::with_capacity(1024);
         let free : Vec<usize> = Vec::with_capacity(1024);
-
          IndexAllocator {
             entries,
             free
         }
     }
 
+    /// Returns a unique generational index.
+    /// Function first checks to see if any free indices are available. If there are free indices,
+    /// then take the first index, pop it out of the vector, increment its generation, and then
+    /// set its live status to true.
+    /// If there are no free indices, then simply push a new index into the  vector and assign its
+    /// index to the vector's size - 1 and set its generation to 0.
     pub fn allocate(&mut self) -> Result<GenerationalIndex, Error> {
+        // Check for free indices.
         if !self.free.is_empty() {
+            // Grab index and entry value.
             let free_idx = self.free[0];
             let mut entry  = &mut self.entries[free_idx];
+            // Increment generation and set value to live.
             entry.generation += 1;
             entry.live = true;
+            // Return new index
             return Ok(GenerationalIndex {index: self.free.pop()?, generation: entry.generation});
         } else {
+            // Push a new entry into index list.
             self.entries.push(AllocatorEntry { live: true, generation: 0});
+            // Return new generational index.
             Ok(GenerationalIndex {index: self.entries.len() - 1, generation: 0})
         }
     }
 
+    /// De-allocates an index and sets it to an unusable state.
+    /// Push the index into the set of free indices and set the live value to false.
+    /// The freed index value will be prioritised for reuse when considering re-allocation.
     pub fn deallocate(&mut self, index : &GenerationalIndex) {
 
         self.free.push(index.index());
         self.entries[index.index()].live = false;
     }
 
+    /// Checks if a value is live. 
     pub fn is_live(&self, index: GenerationalIndex) -> bool {
         self.entries[index.index()].live
     }
