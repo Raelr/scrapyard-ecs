@@ -21,12 +21,31 @@ use self::super::errors::Error;
 /// is created. Since it is the first entity in the list, it is assigned an index of 0, and since it is
 /// the first entity using that index, it is assigned a generation of 0. As such, the generational index
 /// created is: Index: 0 Generation: 0.
-///
+//
 /// If the entity is removed or destroyed in the course of the game, the index is deallocated. In this case,
 /// it is moved into the 'free' vector. When a new entity requests an index, the allocator checks the free
 /// vector and sees that index 0 is free. It therefore assigns 0 to the new entity. Since the index has been
 /// used before, its generation is incremented by one. Therefore, the new entity's index is now:
 /// Index: 0 Generation: 1.
+///
+/// ```
+/// use scrapyard_ecs::index_allocator::IndexAllocator;
+/// fn generate_multiple_indices() {
+///       // Initialise a new Allocator
+///     let mut allocator = IndexAllocator::new();
+///     // Allocate an index (index: 0, generation: 0)
+///     let first = allocator.allocate().unwrap();
+///     // Allocate a second index (index: 1, generation: 0)
+///     let second = allocator.allocate().unwrap();
+///     // Allocate a third index (index: 2, generation: 0)
+///     let third = allocator.allocate().unwrap();
+///
+///     allocator.deallocate(&first);
+///     // First index is now deallocated (live = false)
+///     let first = allocator.allocate().unwrap();
+///     // First should now have its initial index reallocated as (index: 0, generation: 1)
+/// }
+/// ````
 ///
 /// When the new entity now wants to search up anything within its index, it simply checks that both the
 /// index and generation are the same. As such even though the first entity may have elements in a component
@@ -122,7 +141,7 @@ impl IndexAllocator {
         self.entries[index.index()].live = false;
     }
 
-    /// Checks if a value is live. 
+    /// Checks if a value is live.
     pub fn is_live(&self, index: GenerationalIndex) -> bool {
         self.entries[index.index()].live
     }

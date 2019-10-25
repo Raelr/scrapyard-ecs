@@ -1,6 +1,6 @@
 #![feature(try_trait)]
-mod index_allocator;
-mod errors;
+pub mod index_allocator;
+pub mod errors;
 
 #[cfg(test)]
 mod tests {
