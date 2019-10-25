@@ -1,11 +1,21 @@
 #![feature(try_trait)]
 pub mod index_allocator;
 pub mod errors;
+pub mod index_array;
+pub mod component;
 
 #[cfg(test)]
 mod tests {
-    use crate::index_allocator::{IndexAllocator, GenerationalIndex};
+    use crate::index_allocator::{IndexAllocator};
     use crate::errors::Error;
+    use crate::component::Component;
+    use crate::index_array::IndexArray;
+
+    struct TestComponent {
+        pub value : i32
+    }
+
+    impl Component for TestComponent {}
 
     #[test]
     fn generate_index() -> Result<(), Error> {
@@ -48,6 +58,21 @@ mod tests {
         println!("After Deallocation: {}, {}", first.index(), first.generation);
         let success = first.index() == 0 && first.generation == 1;
         assert_eq!(success, true);
+        Ok(())
+    }
+
+    #[test]
+    fn add_component() -> Result<(), Error> {
+
+        let mut allocator = IndexAllocator::new();
+        let first = allocator.allocate()?;
+
+        let component = TestComponent {value : 42};
+        let mut component_array : IndexArray<TestComponent> = IndexArray::new();
+
+        component_array.set(component, &first);
+
+
         Ok(())
     }
 }
