@@ -14,7 +14,7 @@ pub struct IndexArray<T> {
 }
 
 impl<T> Storage<T> for IndexArray<T> {
-    
+
     fn new() -> Self where Self: Sized {
         IndexArray { entries : Vec::with_capacity(1024) }
     }
@@ -48,7 +48,7 @@ impl<T> Storage<T> for IndexArray<T> {
 
     fn contains(&self, index: &GenerationalIndex) -> bool {
         let mut success = false;
-        if !(index.index() < 0 || index.index() >= self.entries.len()) {
+        if !(index.index() >= self.entries.len()) {
             if self.entries[index.index()].is_some() {
                 success = true
             }

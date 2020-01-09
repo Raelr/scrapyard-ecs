@@ -28,7 +28,7 @@ impl ECS {
                                RefCell::new(Box::new(C::Storage::new())));
     }
 
-    fn add_component<C: Component>(&mut self, component: C, index: &GenerationalIndex)
+    pub fn add_component<C: Component>(&mut self, component: C, index: &GenerationalIndex)
         -> Result<(), Error> {
         let mut array = RefMut::map(
             self.components.get(&TypeId::of::<C>())?.borrow_mut(),
@@ -37,12 +37,12 @@ impl ECS {
         Ok(())
     }
 
-    fn get_map<C: Component>(&self) -> Result<Ref<dyn Storage<C>>, Error> {
+    pub fn get_map<C: Component>(&self) -> Result<Ref<dyn Storage<C>>, Error> {
         Ok(Ref::map(self.components.get(&TypeId::of::<C>())?.borrow(),
                     |c| c.downcast_ref::<C::Storage>().unwrap()))
     }
 
-    fn get_map_mut<C: Component>(&self) -> Result<RefMut<dyn Storage<C>>, Error> {
+    pub fn get_map_mut<C: Component>(&self) -> Result<RefMut<dyn Storage<C>>, Error> {
         Ok(RefMut::map(self.components.get(&TypeId::of::<C>())?.borrow_mut(),
                        |c| c.downcast_mut::<C::Storage>().unwrap()))
     }

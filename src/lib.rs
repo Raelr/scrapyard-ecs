@@ -12,6 +12,7 @@ mod tests {
     use crate::errors::Error;
     use crate::component::Component;
     use crate::index_array::IndexArray;
+    use crate::ecs::ECS;
 
     struct Pos {
         x: f32
@@ -58,8 +59,11 @@ mod tests {
     }
 
     #[test]
-    fn add_component() -> Result<(), Error> {
-
+    fn register_component() -> Result<(), Error> {
+        let mut ecs = ECS::new();
+        ecs.register::<Pos>();
+        let pos_map = &*ecs.get_map::<Pos>()?;
+        assert_eq!(pos_map.len(), 0);
         Ok(())
     }
 }
