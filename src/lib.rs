@@ -13,6 +13,14 @@ mod tests {
     use crate::component::Component;
     use crate::index_array::IndexArray;
 
+    struct Pos {
+        x: f32
+    }
+
+    impl Component for Pos {
+        type Storage = IndexArray<Self>;
+    }
+
     #[test]
     fn generate_index() -> Result<(), Error> {
         println!("\nTest one:");
@@ -49,13 +57,9 @@ mod tests {
         Ok(())
     }
 
-//    #[test]
-//    fn add_component() -> Result<(), Error> {
-//        let mut allocator = IndexAllocator::new();
-//        let first = allocator.allocate()?;
-//        let component = TestComponent {value : 42};
-//        let mut component_array : IndexArray<TestComponent> = IndexArray::new();
-//        component_array.set(component, &first);
-//        Ok(())
-//    }
+    #[test]
+    fn add_component() -> Result<(), Error> {
+
+        Ok(())
+    }
 }
