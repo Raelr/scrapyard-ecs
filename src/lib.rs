@@ -80,4 +80,29 @@ mod tests {
         assert_eq!(comp.x, 0.0);
         Ok(())
     }
+
+    struct Vel {
+        x: f32
+    }
+
+    impl Component for Vel {
+        type Storage = IndexArray<Self>;
+    }
+
+    #[test]
+    fn get_multiple_refs() -> Result<(), Error> {
+        let mut ecs = ECS::new();
+        ecs.register::<Pos>();
+        ecs.register::<Vel>();
+        let entity = ecs.create_entity()?
+            .with(Pos { x: 0.0 })?
+            .with(Vel { x: 5.0 })?
+            .build();
+        let pos_map = &mut *ecs.get_map_mut::<Pos>()?;
+        let vel_map = &*ecs.get_map::<Vel>()?;
+        assert_eq!(pos_map.get(&entity)?.x, 0.0);
+        assert_eq!(vel_map.get(&entity)?.x, 5.0);
+        Ok(())
+    }
+
 }
