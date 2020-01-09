@@ -94,15 +94,19 @@ mod tests {
         let mut ecs = ECS::new();
         ecs.register::<Pos>();
         ecs.register::<Vel>();
-        let entity = ecs.create_entity()?
+        let entity = ecs
+            .create_entity()?
             .with(Pos { x: 0.0 })?
             .with(Vel { x: 5.0 })?
             .build();
-        let pos_map = &mut *ecs.get_map_mut::<Pos>()?;
-        let vel_map = &*ecs.get_map::<Vel>()?;
-        assert_eq!(pos_map.get(&entity)?.x, 0.0);
-        assert_eq!(vel_map.get(&entity)?.x, 5.0);
+        {
+            let pos_map = &mut *ecs.get_map_mut::<Pos>()?;
+            let vel_map = &*ecs.get_map::<Vel>()?;
+
+            pos_map.get_mut(&entity)?.x += vel_map.get(&entity)?.x;
+        }
+        assert_eq!(ecs.get_map::<Pos>()?.get(&entity)?.x, 5.0);
+        assert_eq!(ecs.get_map::<Vel>()?.get(&entity)?.x, 5.0);
         Ok(())
     }
-
 }
