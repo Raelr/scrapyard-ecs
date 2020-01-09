@@ -3,6 +3,8 @@ pub mod index_allocator;
 pub mod errors;
 pub mod index_array;
 pub mod component;
+pub mod storage;
+pub mod ecs;
 
 #[cfg(test)]
 mod tests {
@@ -10,12 +12,6 @@ mod tests {
     use crate::errors::Error;
     use crate::component::Component;
     use crate::index_array::IndexArray;
-
-    struct TestComponent {
-        pub value : i32
-    }
-
-    impl Component for TestComponent {}
 
     #[test]
     fn generate_index() -> Result<(), Error> {
@@ -35,11 +31,6 @@ mod tests {
         let second = allocator.allocate()?;
         let third = allocator.allocate()?;
 
-        println!("\nTest two:");
-        println!("First: {}, {}", first.index(), first.generation);
-        println!("Second: {}, {}", second.index(), second.generation);
-        println!("Third: {}, {}", third.index(), third.generation);
-
         let success = first.index() == 0 && first.generation == 0
             && second.index() == 1 && second.generation == 0
             && third.index() == 2 && third.generation == 0;
@@ -52,27 +43,19 @@ mod tests {
         let mut allocator = IndexAllocator::new();
         let first = allocator.allocate()?;
         allocator.deallocate(&first);
-        println!("\nTest three:");
-        println!("Before Deallocation: {}, {}", first.index(), first.generation);
         let first = allocator.allocate()?;
-        println!("After Deallocation: {}, {}", first.index(), first.generation);
         let success = first.index() == 0 && first.generation == 1;
         assert_eq!(success, true);
         Ok(())
     }
 
-    #[test]
-    fn add_component() -> Result<(), Error> {
-
-        let mut allocator = IndexAllocator::new();
-        let first = allocator.allocate()?;
-
-        let component = TestComponent {value : 42};
-        let mut component_array : IndexArray<TestComponent> = IndexArray::new();
-
-        component_array.set(component, &first);
-
-
-        Ok(())
-    }
+//    #[test]
+//    fn add_component() -> Result<(), Error> {
+//        let mut allocator = IndexAllocator::new();
+//        let first = allocator.allocate()?;
+//        let component = TestComponent {value : 42};
+//        let mut component_array : IndexArray<TestComponent> = IndexArray::new();
+//        component_array.set(component, &first);
+//        Ok(())
+//    }
 }

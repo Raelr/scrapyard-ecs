@@ -30,20 +30,22 @@ use self::super::errors::Error;
 ///
 /// ```
 /// use scrapyard_ecs::index_allocator::IndexAllocator;
-/// fn generate_multiple_indices() {
+/// use self::scrapyard_ecs::errors::Error;
+/// fn generate_multiple_indices() -> Result<(), Error> {
 ///       // Initialise a new Allocator
 ///     let mut allocator = IndexAllocator::new();
 ///     // Allocate an index (index: 0, generation: 0)
-///     let first = allocator.allocate().unwrap();
+///     let first = allocator.allocate()?;
 ///     // Allocate a second index (index: 1, generation: 0)
-///     let second = allocator.allocate().unwrap();
+///     let second = allocator.allocate()?;
 ///     // Allocate a third index (index: 2, generation: 0)
-///     let third = allocator.allocate().unwrap();
+///     let third = allocator.allocate()?;
 ///
 ///     allocator.deallocate(&first);
 ///     // First index is now deallocated (live = false)
-///     let first = allocator.allocate().unwrap();
+///     let first = allocator.allocate()?;
 ///     // First should now have its initial index reallocated as (index: 0, generation: 1)
+///     Ok(())
 /// }
 /// ````
 ///
@@ -115,7 +117,7 @@ impl IndexAllocator {
     /// index to the vector's size - 1 and set its generation to 0.
     pub fn allocate(&mut self) -> Result<GenerationalIndex, Error> {
         // Check for free indices.
-        if !self.free.is_empty() {
+        let mut idx = if !self.free.is_empty() {
             // Grab index and entry value.
             let free_idx = self.free[0];
             let mut entry  = &mut self.entries[free_idx];
@@ -123,20 +125,20 @@ impl IndexAllocator {
             entry.generation += 1;
             entry.live = true;
             // Return new index
-            return Ok(GenerationalIndex {index: self.free.pop()?, generation: entry.generation});
+            GenerationalIndex {index: self.free.pop()?, generation: entry.generation}
         } else {
             // Push a new entry into index list.
             self.entries.push(AllocatorEntry { live: true, generation: 0});
             // Return new generational index.
-            Ok(GenerationalIndex {index: self.entries.len() - 1, generation: 0})
-        }
+            GenerationalIndex {index: self.entries.len() - 1, generation: 0}
+        };
+        Ok(idx)
     }
 
     /// De-allocates an index and sets it to an unusable state.
     /// Push the index into the set of free indices and set the live value to false.
     /// The freed index value will be prioritised for reuse when considering re-allocation.
     pub fn deallocate(&mut self, index : &GenerationalIndex) {
-
         self.free.push(index.index());
         self.entries[index.index()].live = false;
     }
