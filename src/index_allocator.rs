@@ -117,7 +117,7 @@ impl IndexAllocator {
     /// index to the vector's size - 1 and set its generation to 0.
     pub fn allocate(&mut self) -> Result<GenerationalIndex, Error> {
         // Check for free indices.
-        let mut idx = if !self.free.is_empty() {
+        let idx = if !self.free.is_empty() {
             // Grab index and entry value.
             let free_idx = self.free[0];
             let mut entry  = &mut self.entries[free_idx];

@@ -5,6 +5,7 @@ pub mod index_array;
 pub mod component;
 pub mod storage;
 pub mod ecs;
+pub mod entity;
 
 #[cfg(test)]
 mod tests {
@@ -64,6 +65,19 @@ mod tests {
         ecs.register::<Pos>();
         let pos_map = &*ecs.get_map::<Pos>()?;
         assert_eq!(pos_map.len(), 0);
+        Ok(())
+    }
+
+    #[test]
+    fn add_components() -> Result<(), Error> {
+        let mut ecs = ECS::new();
+        ecs.register::<Pos>();
+        let entity = ecs.create_entity()?
+            .with(Pos { x: 0.0 })?
+            .build();
+        let pos_map = &*ecs.get_map::<Pos>()?;
+        let comp = pos_map.get(&entity)?;
+        assert_eq!(comp.x, 0.0);
         Ok(())
     }
 }

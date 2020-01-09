@@ -1,6 +1,4 @@
-use super::component::Component;
 use crate::index_allocator::GenerationalIndex;
-use self::super::errors::Error;
 use crate::storage::Storage;
 
 #[derive(Clone, Copy)]
